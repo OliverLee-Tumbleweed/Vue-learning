@@ -1,0 +1,71 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>todo lists</title>
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.css">
+    <style>
+        .del {
+            text-decoration: line-through;
+            color: #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <nav class="navbar navbar-dark bg-dark">
+            <span class="navbar-brand mb-0 h1">Todo-Lists</span>
+        </nav>
+        <div class="container" style="margin-top: 1em;">
+            <div class="row">
+                <div class='col-md-8 offset-md-2'>
+                    <div class="card  border-info ">
+                        <div class="card-header">
+                            亲，你还有 {{incompleted}} 件事情要完成！！！
+                        </div>
+                        <div class="card-body">
+                            <input style='margin-bottom:20px;border:aqua solid 1px' class="form-control" type="text"
+                                placeholder="请添加Toods!" v-model='list' @keyup.enter='addTodo'>
+                            <div class="list-group" v-for="(item,index) in newLists" :key='index'>
+                                <a href="#" class="list-group-item list-group-item-action">
+                                    <input type="checkbox" v-show='item.flag' v-model='item.isSeleted'
+                                        @change="toggleSelect(event,item)">
+                                    <span :class='{del:item.isSeleted}' v-show='item.flag'
+                                        @dblclick='toggleFlag(event,item)'>{{item.title}}</span>
+                                    <input v-show="!item.flag" v-focus='!item.flag' class="form-control" type="text"
+                                        v-model='item.title' @keydown.enter='toggleFlag(event,item)'>
+                                    <span class="float-right" v-show='item.flag'
+                                        @click='deleteTodo(event,item)'>&CircleTimes;</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="card-footer text-muted">
+                            <ul class="nav nav-pills">
+                                <li class="nav-item">
+                                    <a class="nav-link" :class="{active:hash==='all'}" href="/todo.html/#all" >全部:{{lists.length}}</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" :class="{active:hash==='completed'}" href="/todo.html/#completed">已完成:{{completed}}</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" :class="{active:hash==='incompleted'}" href="/todo.html/#incompleted">未完成:{{incompleted}}</a>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <script src="/node_modules/vue/dist/vue.js"></script>
+    <script src="/todo.js"></script>
+</body>
+
+</html>

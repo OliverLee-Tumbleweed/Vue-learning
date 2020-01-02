@@ -1,0 +1,91 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>cart-demo</title>
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.css">
+</head>
+
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="row">
+                <table class="table table-hover table-bodered">
+                    <caption class="h3 text-primary text-center">我的购物车</caption>
+                    <tr>
+                        <th>全选<input type="checkbox" v-model='checkAll'></th>
+                        <th>商品</th>
+                        <th>单价</th>
+                        <th>数量</th>
+                        <th>小计</th>
+                        <th>操作</th>
+                    </tr>
+                    <tr v-for='(product,index) in products'>
+                        <td><input type="checkbox" v-model='product.isSelected' ></td>
+                        <td> <img :src="product.productCover" :title="product.productName">{{product.productName}}</td>
+                        <td>{{product.productPrice}}</td>
+                        <td> <input type="number" v-model="product.productCount" min='1'></td>
+                        <td>{{product.productCount*product.productPrice | toFixed(2) }}</td>
+                        <!-- remove中传入product,相当于拷贝了一个对象地址到product中，
+                            之后和原来的products数组中的对象地址
+                            （可以进行比较，因为都指向同一个地址）进行比较，过滤掉即可 -->
+                        <td><button class="btn btn-danger" @click="remove(product)">删除</button></td>
+                    </tr>
+                    <tr><td  colspan='6'>总价格:{{sum | toFixed(2)}}</td> </tr>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+    <p style="font-size: 1.2em;">需要在当前文件夹启动 http-server 服务器 </p>
+    <script src="/node_modules/vue/dist/vue.js"></script>
+    <script src="/node_modules/axios/dist/axios.js"></script>
+    <script>
+        let vm = new Vue({
+            el: "#app",
+            created() {//数据初始化之后调用，this指向vm实例，//但是回调函数中的this指向的是window,回调中应该使用箭头函数改变this指向
+                    this.getData()                  
+            },
+            computed:{//计算属性  是通过初始值计算得来的,会缓存，如果依赖值么有改变，则不会重新计算
+                checkAll:{
+                    get(){// v-model 读取checkAll 的时候会调用get函数
+                        return this.products.every(item => item.isSelected === true)
+                    },
+                    set(value){//当checkbox值改变时，会调用set方法
+                        this.products.forEach(item => item.isSelected = value)
+                    }
+                },
+                sum(){//如果计算属性写成函数，默认就是调用get方法
+                        return this.products.reduce((value,item) => {
+                        if(!item.isSelected) return value //如果此项没有选中，则不计算价格
+                        return item.productPrice * item.productCount + value
+                    },0)
+                    
+                }
+            },
+            methods:{
+                getData(){
+                    axios.get("/1.assets/cart.json").then(res => {
+                    this.products = res.data
+                    }).catch(err => { console.log(err) })
+                },
+                remove(product){
+                    this.products = this.products.filter(item => product!==item)
+                }
+            },
+            filters:{//保存自定义过滤器
+                toFixed(input,para1){//这里的this指向window，第一个参数是管道符前面的输入，剩余参数为调用时候传入的参数
+                    return "￥ " + input.toFixed(para1)
+                }
+            },
+            data: {
+                products: []
+            }
+        })
+    </script>
+</body>
+
+</html>
